@@ -932,8 +932,7 @@ function openGoal(id){
     tpl().forEach(t=>{const k=norm(t);if(byKey[k])return;byKey[k]={title:t,cats:[]};items.push(byKey[k])});
     let h='';
     items.forEach(o=>{const k=norm(o.title);
-      if(!editTpl&&seen.has(k))return;
-      const src=o.cats.length?'<span class="src">'+esc(o.cats.join(', '))+'</span>':'';
+      const src=seen.has(k)?'<span class="src" style="color:var(--ink-3)">уже есть</span>':o.cats.length?'<span class="src">'+esc(o.cats.join(', '))+'</span>':'';
       h+=editTpl?'<button type="button" class="chip" data-del="'+esc(o.title)+'" aria-label="Удалить подсказку '+esc(o.title)+'"><span class="t">'+esc(o.title)+'</span><span class="x">×</span></button>'
                :'<button type="button" class="chip'+(k===cur?' on':'')+'" data-t="'+esc(o.title)+'"'+(o.kind?' data-kind="'+o.kind+'"':'')+'><span class="t">'+esc(o.title)+'</span>'+src+'</button>';
     });
