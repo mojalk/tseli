@@ -188,7 +188,11 @@ button{-webkit-user-select:none;user-select:none;transition:transform .14s cubic
 .celebrate .badge{animation:pop .5s cubic-bezier(.3,1.6,.5,1)}
 @keyframes pop{0%{transform:scale(.4);opacity:0}100%{transform:none;opacity:1}}
 .box svg path{stroke-dasharray:24;stroke-dashoffset:0}
-.celebrate .box svg path{animation:draw .4s .05s ease-out both}
+.celebrate .box svg path,.celebrate .tick1 svg path{animation:draw .4s .05s ease-out both}
+.step.lead{color:var(--ink-3);opacity:.6;cursor:default}
+.goal.is-done .step.lead{color:var(--done);opacity:.8}
+.tick1 svg path{stroke-dasharray:24}
+.step.tick1:not(.on){background:var(--surface-2);border-color:var(--accent);color:var(--accent)}
 @keyframes draw{from{stroke-dashoffset:24}}
 .goal.is-done .box{transition:background-color .2s,border-color .2s}
 .handle{flex:none;width:32px;height:32px;margin:-4px -6px -4px 0;border:0;background:none;color:var(--ink-3);display:grid;place-items:center;border-radius:10px;touch-action:none;cursor:grab}
@@ -581,7 +585,12 @@ function goalHTML(id,g){
   const ex=g.example?'<span class="ex">пример</span>':'';
   let body;
   if(g.kind==='check'){
-    body='<button class="check" data-act="toggle" data-id="'+id+'" aria-pressed="'+done+'"><span class="box">'+(done?ICON.check:'')+'</span>'+(done?'Выполнено':'Отметить выполненной')+'</button>';
+    body='<div class="counter single">'+
+      '<span class="step lead" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="3"/></svg></span>'+
+      '<div class="mid"><div class="nums"><span class="frac">'+(done?1:0)+'<span>/1</span></span><span class="pct">'+(done?'выполнено':'один раз')+'</span></div>'+
+      '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pc+'"><i style="width:'+pc+'%"></i></div></div>'+
+      '<button class="step plus tick1'+(done?' on':'')+'" data-act="toggle" data-id="'+id+'" aria-pressed="'+done+'" aria-label="'+(done?'Снять отметку':'Отметить выполненной')+'">'+ICON.check+'</button>'+
+    '</div>';
   }else{
     body='<div class="counter">'+
       '<button class="step minus" data-act="dec" data-id="'+id+'" aria-label="Минус один" '+((g.done||0)<=0?'disabled':'')+'>'+ICON.minus+'</button>'+
