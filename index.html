@@ -531,7 +531,7 @@ function backupNoteHTML(){
 function norm(t){return String(t||'').toLowerCase().replace(/ё/g,'е').replace(/\s+/g,' ').trim()}
 function syncs(g){return !!g&&g.sync!==false&&!g.archived}
 function capOf(g){return g.kind==='check'?1:Infinity}
-function stateOf(g){return g.kind==='check'?(g.done>=1?'✓':'не отмечено'):(g.done||0)+'/'+g.target}
+function stateOf(g){return g.kind==='check'?(g.done>=1?1:0)+'/1':(g.done||0)+'/'+g.target}
 function linkedOf(id){const g=goals[id];if(!syncs(g))return[];const k=norm(g.title);return Object.keys(goals).filter(o=>o!==id&&syncs(goals[o])&&norm(goals[o].title)===k)}
 function tpl(){return templates||BUILTIN.slice()}
 function progress(g){
@@ -1007,7 +1007,7 @@ function openSummary(id){
   const pv=prevSum(id);const nm=x.cat==='week'?'неделя':'месяц';
   let cmp='';if(pv){const dlt=x.avg-pv[1].avg;cmp='<span class="cmp'+(dlt<0?' down':'')+'">'+(dlt>=0?'▲ +':'▼ ')+dlt+'% к прошлому '+(x.cat==='week'?'разу':'месяцу')+'</span>'}
   const best=x.items.slice().sort((a,b)=>(b.done/Math.max(1,b.target))-(a.done/Math.max(1,a.target)))[0];
-  const rows=x.items.map(it=>{const p=Math.min(1,it.done/Math.max(1,it.target));return '<div class="srow'+(p>=1?' ok':'')+'"><span class="t">'+esc(it.title)+'</span><span class="v">'+(it.kind==='check'?(it.done>=1?'✓':'—'):it.done+'/'+it.target)+'</span><span class="b"><i style="width:'+Math.round(p*100)+'%"></i></span></div>'}).join('');
+  const rows=x.items.map(it=>{const p=Math.min(1,it.done/Math.max(1,it.target));return '<div class="srow'+(p>=1?' ok':'')+'"><span class="t">'+esc(it.title)+'</span><span class="v">'+(it.kind==='check'?((it.done>=1?1:0)+'/1'):it.done+'/'+it.target)+'</span><span class="b"><i style="width:'+Math.round(p*100)+'%"></i></span></div>'}).join('');
   const s=sheet('<h2>Итог: '+nm+' '+esc(x.label)+'</h2>'+
     '<div class="sumcard"><div class="k">Средний прогресс</div><div class="pp">'+x.avg+'<small>%</small></div><div class="st">Выполнено '+x.doneN+' из '+x.total+' '+plural(x.total,'цели','целей','целей')+'</div>'+cmp+'</div>'+
     '<p class="phrase">'+esc(phraseFor(id,x,pv?x.avg-pv[1].avg:null))+'</p>'+
@@ -1035,7 +1035,7 @@ async function shareSummary(x,pv){
   if(pv){const dlt=x.avg-pv.avg;g.fillStyle=dlt>=0?T('--done'):T('--danger');g.font='700 36px '+BODY;g.fillText((dlt>=0?'▲ +':'▼ ')+dlt+'% к прошлому разу',80,570)}
   let y=660;x.items.forEach(it=>{const p=Math.min(1,it.done/Math.max(1,it.target));
     g.fillStyle=T('--ink');g.font='600 40px '+BODY;let t=it.title;while(g.measureText(t).width>700&&t.length>3)t=t.slice(0,-2);if(t!==it.title)t+='…';g.fillText(t,80,y);
-    g.font='700 40px '+MONO;g.textAlign='right';g.fillText(it.kind==='check'?(it.done>=1?'✓':'—'):it.done+'/'+it.target,W-80,y);g.textAlign='left';
+    g.font='700 40px '+MONO;g.textAlign='right';g.fillText(it.kind==='check'?((it.done>=1?1:0)+'/1'):it.done+'/'+it.target,W-80,y);g.textAlign='left';
     const by=y+28;g.fillStyle=T('--track');rr(g,80,by,W-160,18,9);g.fillStyle=p>=1?T('--done'):T('--accent');if(p>0)rr(g,80,by,Math.max(18,(W-160)*p),18,9);y+=120});
   g.fillStyle=T('--ink-3');g.font='600 30px '+BODY;g.fillText('Цели',80,H-70);
   function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();g.fill()}
@@ -1058,7 +1058,7 @@ function openNYShow(id,x,preview){
   const statsHTML=[stat(st.total,'раз ты нажал «+1» за год',true),stat(x.doneN+'/'+x.total,'целей года выполнено'),stat(st.doneGoals,'закрыто целей за всё время')]
     .concat(st.best?[stat(st.best.v,'лучший день · '+st.best.label)]:[]).concat(st.streak?[stat(st.streak.v,'дней подряд — рекорд серии')]:[])
     .concat(st.periods?[stat(st.good+'/'+st.periods,'недель и месяцев на 80%+',true)]:[]).join('');
-  const goalsHTML=x.items.length?x.items.map(it=>{const p=Math.min(1,it.done/Math.max(1,it.target));return '<div class="nygoal"><div class="t"><span>'+esc(it.title)+'</span><span>'+(it.kind==='check'?(it.done>=1?'✓':'—'):it.done+'/'+it.target)+'</span></div><div class="b"><i data-w="'+Math.round(p*100)+'"></i></div></div>'}).join(''):'<p class="nyp">В этом году не было целей «до НГ». Самое время поставить их на '+(yr+1)+'!</p>';
+  const goalsHTML=x.items.length?x.items.map(it=>{const p=Math.min(1,it.done/Math.max(1,it.target));return '<div class="nygoal"><div class="t"><span>'+esc(it.title)+'</span><span>'+(it.kind==='check'?((it.done>=1?1:0)+'/1'):it.done+'/'+it.target)+'</span></div><div class="b"><i data-w="'+Math.round(p*100)+'"></i></div></div>'}).join(''):'<p class="nyp">В этом году не было целей «до НГ». Самое время поставить их на '+(yr+1)+'!</p>';
   const topHTML=st.top.length?st.top.map((o,i)=>stat(o.n,(i===0?'🥇 ':i===1?'🥈 ':'🥉 ')+o.title,true)).join(''):'';
   const slides=[
     '<div class="nyk">Итоги года</div><div class="nyyear"><span class="old">'+yr+'</span><span class="new">'+(yr+1)+'</span></div><h2 class="nyh">С Новым годом!</h2><p class="nyp">Год закрыт. Давай посмотрим, чего ты добился.</p>',
@@ -1119,7 +1119,7 @@ function openTrash(){
     const items=Object.entries(trash).sort((a,b)=>b[1].at-a[1].at);
     if(!items.length)return '<p class="hint" style="margin:0">Корзина пуста.</p>';
     return items.map(([k,o])=>{const g=o.g,left=Math.max(1,TRASH_DAYS-Math.floor((Date.now()-o.at)/864e5));
-      return '<div class="arow"><span class="at">'+esc(g.title)+'<span class="as">'+CATS[g.cat].short+' · '+(g.kind==='check'?(g.done>=1?'выполнено':'не выполнено'):(g.done||0)+'/'+g.target)+' · исчезнет через '+left+' '+plural(left,'день','дня','дней')+'</span></span>'+
+      return '<div class="arow"><span class="at">'+esc(g.title)+'<span class="as">'+CATS[g.cat].short+' · '+stateOf(g)+' · исчезнет через '+left+' '+plural(left,'день','дня','дней')+'</span></span>'+
         '<button data-r="'+k+'">Вернуть</button><button class="del" data-d="'+k+'">Стереть</button></div>'}).join('');
   }
   const s=sheet('<h2>Корзина</h2><p class="hint" style="margin:-6px 0 12px">Удалённые цели хранятся здесь '+TRASH_DAYS+' дней, потом исчезают сами.</p><div id="tr-list"></div><div class="actions" style="margin-top:16px"><button class="btn" id="tr-close">Закрыть</button></div>');
@@ -1141,7 +1141,7 @@ function openArchive(){
     items.forEach(([k,g])=>{const gname=g.period?'Период '+g.period:'Убраны вручную';if(!groups[gname]){groups[gname]=[];order.push(gname)}groups[gname].push([k,g])});
     const sumFor=gn=>{const it=Object.entries(sums).find(([,x])=>x.cat===cat&&'Период '+x.label===gn);return it?'<button data-sum="'+it[0]+'">Итог</button>':''};
     return order.map(gn=>'<div class="agroup"><span>'+esc(gn)+'</span>'+sumFor(gn)+'</div>'+groups[gn].map(([k,g])=>
-      '<div class="arow"><span class="at">'+esc(g.title)+'<span class="as">'+(g.kind==='check'?(g.done>=1?'выполнено':'не выполнено'):(g.done||0)+'/'+g.target+(isDone(g)?' · выполнено':''))+'</span></span>'+
+      '<div class="arow"><span class="at">'+esc(g.title)+'<span class="as">'+(stateOf(g)+(isDone(g)?' · выполнено':''))+'</span></span>'+
       '<button data-r="'+k+'">Вернуть</button><button class="del" data-d="'+k+'">Удалить</button></div>').join('')).join('');
   }
   const tn=Object.keys(trash).length;
